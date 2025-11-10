@@ -1,0 +1,30 @@
+# macOS (Darwin) runtime requirements
+# Optimized for Apple Silicon (M1/M2/M3) Macs with Metal Performance Shaders
+# Compatible with Python 3.8+ on macOS
+
+# Django Framework
+Django==5.2.5
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+
+# Core scientific/imagery libraries
+Pillow==10.1.0
+numpy>=1.24.0,<2.0
+
+# Keras attention layers (compatible with TensorFlow 2.16+)
+keras-multi-head==0.27.0
+keras-self-attention==0.46.0
+
+# Apple Silicon TensorFlow with Metal acceleration
+# These packages provide optimized performance on Apple Silicon
+tensorflow-macos==2.16.1
+tensorflow-metal==1.2.0
+
+# FastAPI and ASGI server for standalone API
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart>=0.0.6
+
+# Additional macOS optimizations
+# For better performance on macOS
+psutil>=5.9.0

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Prediction Result</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    .viewer img { 
+      user-select: none; 
+      -webkit-user-drag: none; 
+      transform-origin: center center; 
+      transition: transform .2s ease; 
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-10">
+
+  <div class="w-full max-w-5xl bg-white border-2 border-indigo-200 rounded-2xl shadow-lg p-6 sm:p-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Prediction Result</h1>
+      <button id="backBtn" class="px-4 py-2 rounded-lg bg-white border-2 border-gray-300 text-gray-700 font-semibold shadow hover:bg-gray-50">
+        ⬅ Back
+      </button>
+    </div>
+
+    <div id="noData" class="hidden text-center text-red-600 font-medium border-2 border-red-200 rounded-xl p-4 bg-red-50">
+      No prediction data found. Please go back and try again.
+    </div>
+
+    <div id="content" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Image Viewer -->
+      <div class="viewer border-2 border-indigo-300 shadow-inner p-2">
+        <div class="relative aspect-[4/3] bg-indigo-50 rounded-xl overflow-hidden flex items-center justify-center">
+          <img id="predImage" alt="Uploaded"
+               class="max-w-full max-h-full object-contain select-none rounded-lg border-4 border-indigo-300 shadow-md hidden" />
+        </div>
+        <div id="controls" class="hidden mt-3 flex flex-wrap items-center gap-2">
+          <button id="zoomIn"  class="px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold shadow hover:bg-indigo-700">🔍 Zoom In</button>
+          <button id="zoomOut" class="px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold shadow hover:bg-indigo-700">🔎 Zoom Out</button>
+          <button id="reset"   class="px-3 py-2 rounded-lg bg-white border-2 border-indigo-300 text-indigo-700 text-sm font-semibold shadow hover:bg-indigo-50">♻ Reset View</button>
+        </div>
+      </div>
+
+      <!-- Right: Details -->
+      <div class="space-y-5">
+        <div class="border-2 border-indigo-200 rounded-xl p-5 bg-indigo-50/40">
+          <p class="text-sm text-gray-600 mb-1">Predicted Condition</p>
+          <div id="predicted" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white font-semibold border-2 border-indigo-700"></div>
+        </div>
+
+        <div class="border-2 border-gray-200 rounded-xl p-5 bg-gray-50">
+          <p class="text-gray-800 font-semibold mb-2">Disease Details</p>
+          <p id="detailsText" class="text-sm sm:text-base text-gray-700 mb-3"></p>
+          <a id="detailsLink" href="#" class="text-indigo-600 underline text-sm sm:text-base" target="_blank">Learn more →</a>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <button id="downloadBtn" class="px-4 py-2 rounded-lg bg-green-600 text-white font-semibold shadow hover:bg-green-700 border-2 border-green-700">
+            ⬇ Download Report (PDF)
+          </button>
+          <button id="backBtn2" class="px-4 py-2 rounded-lg bg-white border-2 border-gray-300 text-gray-700 font-semibold shadow hover:bg-gray-50">
+            Upload Another
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 🔹 Disease details dictionary
+
+  // 🔹 Disease details dictionary (Full Version)
+  const diseaseInfo = {
+    "Alopecia Areata": "Alopecia Areata is an autoimmune disorder where the body’s immune system mistakenly attacks the hair follicles. This causes sudden patchy hair loss, usually appearing as round bald spots on the scalp. In some cases, hair may regrow naturally, but in others it can keep falling out and coming back. Stress, genetics, and other autoimmune conditions may trigger it. Treatments include corticosteroid injections, topical solutions, and lifestyle management to reduce stress.",
+
+    "Contact Dermatitis": "Contact Dermatitis is an irritation or allergic reaction of the skin caused by direct contact with substances such as hair dyes, shampoos, soaps, or even metals in hair accessories. It results in redness, itching, burning, and sometimes blistering on the scalp. Avoiding the triggering substance, applying soothing creams, and using medicated shampoos can help. In severe cases, doctors may prescribe anti-inflammatory medicines.",
+
+    "Folliculitis": "Folliculitis is inflammation or infection of the hair follicles, often caused by bacteria (like Staphylococcus aureus), fungi, or ingrown hairs. It appears as small red or pus-filled bumps on the scalp that may be itchy or painful. Poor scalp hygiene, sweating, or sharing contaminated items (like combs) can increase the risk. Treatment includes antibacterial or antifungal shampoos, topical creams, and avoiding scratching.",
+
+    "Head Lice": "Head Lice are tiny insects that live on the scalp and feed on blood. They cause severe itching, irritation, and sometimes small red bumps due to bites. Lice spread quickly through close head-to-head contact, especially in children. They are not a sign of poor hygiene but require treatment with medicated shampoos, special lice-combs, and thorough cleaning of bedding and clothes.",
+
+    "Lichen Planus": "Lichen Planus is a chronic inflammatory skin condition that can affect the scalp, causing itchy, reddish-purple patches and sometimes leading to scarring hair loss (cicatricial alopecia). Its exact cause is unknown, but it may be linked to immune system overactivity or certain medications. Treatment may involve corticosteroids, antihistamines for itching, and medicated shampoos.",
+
+    "Male Pattern Baldness": "Male Pattern Baldness (Androgenetic Alopecia) is the most common type of hair loss in men. It usually starts with a receding hairline and thinning on the crown due to genetic and hormonal factors (mainly dihydrotestosterone - DHT). It progresses gradually and can result in partial or complete baldness. Treatments include minoxidil, finasteride, hair transplants, and lifestyle improvements.",
+
+    "Psoriasis": "Psoriasis is a chronic autoimmune disease that speeds up the life cycle of skin cells, leading to thick, red, scaly patches on the scalp. It may cause itching, flaking that looks like dandruff, and even hair shedding. Triggers include stress, cold weather, infections, and certain medications. Treatments include medicated shampoos, topical corticosteroids, UV therapy, and immune-modulating drugs.",
+
+    "Seborrheic Dermatitis": "Seborrheic Dermatitis is a common scalp condition causing dandruff, itching, redness, and greasy or flaky patches. It occurs due to overgrowth of yeast (Malassezia) and excess oil production on the scalp. It is not contagious and can be managed with antifungal or medicated shampoos, regular scalp cleaning, and reducing stress. It often flares up in winter and improves in summer.",
+
+    "Telogen Effluvium": "Telogen Effluvium is a temporary type of hair loss where a large number of hair strands enter the resting (telogen) phase at once and fall out more easily. It is usually triggered by stress, illness, surgery, childbirth, sudden weight loss, or hormonal changes. Unlike baldness, hair usually regrows naturally within 3–6 months once the underlying cause is treated. Stress management, proper nutrition, and medical advice help in recovery.",
+
+    "Tinea Capitis": "Tinea Capitis (Scalp Ringworm) is a contagious fungal infection of the scalp, most common in children. It causes round, scaly bald patches, itching, and sometimes black dots where hairs have broken off. In severe cases, it may lead to swollen lymph nodes or pus-filled lesions (kerion). It spreads through direct contact or sharing combs, hats, and pillows. Treatment includes oral antifungal medicines and antifungal shampoos."
+  }
+
+    // Load prediction + client details
+    const data = JSON.parse(localStorage.getItem('prediction') || 'null');
+    const clientName = localStorage.getItem('clientName') || "____________________________";
+    const clientDOB = localStorage.getItem('clientDOB') || "____________________________";
+    const clientContact = localStorage.getItem('clientContact') || "____________________________";
+
+    const content   = document.getElementById('content');
+    const noData    = document.getElementById('noData');
+    const predImage = document.getElementById('predImage');
+    const predicted = document.getElementById('predicted');
+    const detailsText = document.getElementById('detailsText');
+    const detailsLink = document.getElementById('detailsLink');
+    const controls  = document.getElementById('controls');
+
+    const back = () => { window.location.href = 'index.html'; };
+    document.getElementById('backBtn').onclick  = back;
+    document.getElementById('backBtn2').onclick = back;
+
+    if (!data) {
+      noData.classList.remove('hidden');
+      content.classList.add('hidden');
+    } else {
+      predicted.textContent = data.predicted_class;
+      detailsText.textContent = diseaseInfo[data.predicted_class] || "No extra details available.";
+      detailsLink.textContent = `More about ${data.predicted_class}`;
+      detailsLink.href = "#";
+      predImage.src = data.image;
+      predImage.classList.remove('hidden');
+      controls.classList.remove('hidden');
+    }
+
+    // Zoom & Pan
+    let scale = 1, tx = 0, ty = 0;
+    let isDragging = false, startX = 0, startY = 0;
+    const applyTransform = () => predImage.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+
+    document.getElementById('zoomIn').onclick  = () => { scale = Math.min(4, scale + 0.2); applyTransform(); };
+    document.getElementById('zoomOut').onclick = () => { scale = Math.max(0.4, scale - 0.2); applyTransform(); };
+    document.getElementById('reset').onclick   = () => { scale = 1; tx = 0; ty = 0; applyTransform(); };
+
+    predImage.addEventListener('mousedown', e => {
+      if (scale <= 1) return;
+      isDragging = true;
+      startX = e.clientX - tx;
+      startY = e.clientY - ty;
+      predImage.classList.add('cursor-grabbing');
+    });
+    window.addEventListener('mousemove', e => {
+      if (!isDragging) return;
+      tx = e.clientX - startX;
+      ty = e.clientY - startY;
+      applyTransform();
+    });
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+      predImage.classList.remove('cursor-grabbing');
+    });
+    predImage.addEventListener('wheel', e => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.1 : -0.1;
+      scale = Math.min(4, Math.max(0.4, scale + delta));
+      applyTransform();
+    }, { passive: false });
+    predImage.addEventListener('dblclick', () => { scale = 1; tx = 0; ty = 0; applyTransform(); });
+
+// PDF Download
+document.getElementById("downloadBtn").onclick = () => {
+  if (!data) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Title
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text("Scalp Condition Report", 105, 20, { align: "center" });
+
+  // Client Details
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("Client Details", 14, 35);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Name: ${clientName}`, 14, 45);
+  doc.text(`Date of Birth: ${clientDOB}`, 14, 52);
+  doc.text(`Contact Number: ${clientContact}`, 14, 59);
+
+  // Prediction
+  doc.setFont("helvetica", "bold");
+  doc.text("Prediction Result", 14, 75);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Predicted Condition: ${data.predicted_class}`, 14, 83);
+
+  // Disease Details
+  doc.setFont("helvetica", "bold");
+  doc.text("Disease Details", 14, 100);
+  doc.setFont("helvetica", "normal");
+  const detailText = diseaseInfo[data.predicted_class] || "No details available.";
+  const splitDetails = doc.splitTextToSize(detailText, 180);
+  doc.text(splitDetails, 14, 108);
+
+  // Insert Image SMALL on same page
+  if (data.image) {
+    doc.setFont("helvetica", "bold");
+    doc.text("Uploaded Image", 14, 160);
+    // x=14, y=165, width=60, height=45 (keeps it small)
+    doc.addImage(data.image, "JPEG", 14, 165, 60, 45);
+  }
+
+  // Footer
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  doc.text("Generated by AI Skin/Scalp Diagnostic Tool", 105, 285, { align: "center" });
+
+  doc.save(`Scalp_Report_${data.predicted_class}.pdf`);
+};
+
+  </script>
+</body>
+</html>

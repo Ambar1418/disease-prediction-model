@@ -1,0 +1,722 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Prediction Result - Hair & Scalp AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+      :root {
+        --primary-color: #14b8a6;
+        --secondary-color-bg: #f3f4f6;
+        --accent-color: #10b981;
+        --error-color: #ef4444;
+        --text-dark: #1f2937;
+        --text-light: #6b7280;
+        --white-color: #ffffff;
+        --border-color: #e5e7eb;
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07),
+          0 2px 4px -2px rgba(0, 0, 0, 0.07);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        --border-radius: 12px;
+        --transition-speed: 0.3s ease;
+      }
+      [data-theme="dark"] {
+        --secondary-color-bg: #111827;
+        --text-dark: #f3f4f6;
+        --text-light: #9ca3af;
+        --white-color: #1f2937;
+        --border-color: #374151;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+        line-height: 1.7;
+        color: var(--text-dark);
+        background-color: var(--secondary-color-bg);
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      main {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 100px 1rem 2rem 1rem;
+      }
+      .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        padding: 1rem 0;
+        border-bottom: 1px solid transparent;
+        transition: all var(--transition-speed);
+      }
+      [data-theme="dark"] .navbar {
+        background: rgba(31, 41, 55, 0.8);
+      }
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 1rem;
+      }
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        text-decoration: none;
+      }
+      .nav-links {
+        display: none;
+        list-style: none;
+        gap: 2rem;
+        align-items: center;
+      }
+      @media (min-width: 768px) {
+        .nav-links {
+          display: flex;
+        }
+      }
+      .nav-links a {
+        text-decoration: none;
+        color: var(--text-dark);
+        font-weight: 500;
+      }
+      .nav-links li {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .logout-btn {
+        background-color: var(--error-color) !important;
+        color: white !important;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        transition: all var(--transition-speed);
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+      .logout-btn:hover {
+        background-color: #dc2626 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+      }
+      .theme-toggle {
+        background: var(--white-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-light);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .result-card {
+        background: var(--white-color);
+        border-radius: var(--border-radius);
+        padding: 2.5rem;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-lg);
+        width: 100%;
+        max-width: 1000px;
+      }
+      .result-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      .result-header h1 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+
+      .result-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      @media (min-width: 1024px) {
+        .result-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      #previewContainer {
+        position: relative;
+        width: 100%;
+        padding-top: 75%; /* 4:3 Aspect Ratio */
+        border: 2px solid var(--primary-color);
+        border-radius: var(--border-radius);
+        background-color: var(--secondary-color-bg);
+        overflow: hidden;
+        cursor: grab;
+      }
+      #previewContainer:active {
+        cursor: grabbing;
+      }
+      #predImage {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        user-select: none;
+        -webkit-user-drag: none;
+        transform-origin: center center;
+        transition: transform 0.2s ease;
+      }
+      .image-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .details-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .info-box {
+        background: var(--white-color);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+      }
+      .info-box p.label {
+        font-size: 0.9rem;
+        color: var(--text-light);
+        margin-bottom: 0.5rem;
+      }
+      #predicted {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+      }
+      #detailsText {
+        font-size: 0.95rem;
+        color: var(--text-light);
+        margin-bottom: 1rem;
+      }
+      #detailsLink {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+      }
+      #detailsLink:hover {
+        text-decoration: underline;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.7rem 1.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all var(--transition-speed);
+        border: none;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+      .btn-primary {
+        background: var(--accent-color);
+        color: white;
+      }
+      .btn-primary:hover {
+        background-color: #059669;
+      }
+      .btn-secondary {
+        background: var(--white-color);
+        color: var(--text-dark);
+        border: 1px solid var(--border-color);
+      }
+      .btn-secondary:hover {
+        background-color: var(--secondary-color-bg);
+      }
+
+      #noData {
+        display: none;
+        text-align: center;
+        color: var(--error-color);
+        border: 1px solid var(--error-color);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        background-color: rgba(239, 68, 68, 0.05);
+      }
+      #noData.visible {
+        display: block;
+      }
+      .hidden {
+        display: none;
+      }
+
+      .footer {
+        background: var(--text-dark);
+        color: #a0aec0;
+        padding: 4rem 1rem 2rem;
+        margin-top: auto;
+      }
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+      }
+      .footer-section h3 {
+        font-size: 1.1rem;
+        margin-bottom: 1.2rem;
+        color: var(--white-color);
+      }
+      .footer-section a {
+        color: #a0aec0;
+        text-decoration: none;
+      }
+      .footer-bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 2rem;
+        text-align: center;
+        font-size: 0.9rem;
+      }
+
+      /* Footer Dark Mode Improvements */
+      [data-theme="dark"] .footer {
+        background: #0f172a;
+        color: #cbd5e1;
+      }
+
+      [data-theme="dark"] .footer-section h3 {
+        color: #f1f5f9;
+      }
+
+      [data-theme="dark"] .footer-section p,
+      [data-theme="dark"] .footer-section a {
+        color: #cbd5e1;
+      }
+
+      [data-theme="dark"] .footer-bottom {
+        border-top-color: rgba(255, 255, 255, 0.15);
+        color: #94a3b8;
+      }
+
+      /* Session timeout warning */
+      .session-warning {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: #f59e0b;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: var(--shadow-lg);
+        z-index: 1001;
+        display: none;
+        max-width: 300px;
+      }
+      .session-warning.show {
+        display: block;
+      }
+      .session-warning .warning-text {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
+      .session-warning .time-left {
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+    </style>
+  </head>
+  <body data-theme="dark">
+    <nav class="navbar" id="navbar">
+      <div class="nav-container">
+        <a href="/" class="logo">Hair & Scalp AI</a>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="disease_info">Explore Diseases</a></li>
+          <li><a href="appointment">Find a Specialist</a></li>
+          <li><a href="/logout" class="logout-btn">Logout</a></li>
+        </ul>
+        <button class="theme-toggle" id="themeToggle">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Session timeout warning -->
+    <div id="sessionWarning" class="session-warning">
+      <div class="warning-text">Session Expiring Soon!</div>
+      <div class="time-left">
+        Your session will expire in <span id="timeLeft">5</span> minutes
+      </div>
+    </div>
+
+    <main>
+      <div class="result-card">
+        <div class="result-header">
+          <h1>Prediction Result</h1>
+          <button id="backBtn" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Upload
+          </button>
+        </div>
+
+        <div id="noData">
+          No prediction data found. Please go back and try again.
+        </div>
+
+        <div id="content" class="result-grid">
+          <div>
+            <div id="previewContainer">
+              <img id="predImage" alt="Uploaded Scalp Image" class="hidden" />
+            </div>
+            <div id="controls" class="image-controls hidden">
+              <button id="zoomIn" class="btn btn-primary btn-sm">
+                <i class="fas fa-search-plus"></i> Zoom In
+              </button>
+              <button id="zoomOut" class="btn btn-primary btn-sm">
+                <i class="fas fa-search-minus"></i> Zoom Out
+              </button>
+              <button id="reset" class="btn btn-secondary btn-sm">
+                <i class="fas fa-sync-alt"></i> Reset
+              </button>
+            </div>
+          </div>
+
+          <div class="details-container">
+            <div class="info-box">
+              <p class="label">Predicted Condition</p>
+              <div id="predicted">Loading...</div>
+            </div>
+            <div class="info-box">
+              <p class="label">Condition Details</p>
+              <p id="detailsText">Loading details...</p>
+              <a id="detailsLink" href="" target="_blank">Learn more &rarr;</a>
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <button id="downloadBtn" class="btn btn-primary">
+                <i class="fas fa-download"></i> Download Report (PDF)
+              </button>
+              <button id="backBtn2" class="btn btn-secondary">
+                Upload Another
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    {% comment %}
+    <footer class="footer" id="contact">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>Hair & Scalp AI</h3>
+          <p>Advanced AI for hair and scalp disease prediction.</p>
+        </div>
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <p><a href="/">Home</a></p>
+          <p><a href="/#features">Features</a></p>
+        </div>
+        <div class="footer-section">
+          <h3>Services</h3>
+          <p><a href="/find-specialist.html">Find a Specialist</a></p>
+          <p><a href="/diseasetype.html">Explore Diseases</a></p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Hair & Scalp Disease Prediction. All Rights Reserved.</p>
+      </div>
+    </footer>
+    {% endcomment %}
+
+    <script>
+      // --- GLOBAL SCRIPTS ---
+      const themeToggle = document.getElementById("themeToggle");
+      const body = document.body;
+      themeToggle.addEventListener("click", () => {
+        const currentTheme = body.dataset.theme === "dark" ? "light" : "dark";
+        body.dataset.theme = currentTheme;
+        themeToggle.querySelector("i").className =
+          currentTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+      });
+
+      // --- PAGE-SPECIFIC SCRIPTS ---
+      const diseaseInfo = {
+        "Alopecia Areata":
+          "An autoimmune disorder causing patchy hair loss. It occurs when the immune system mistakenly attacks hair follicles.",
+        "Contact Dermatitis":
+          "A skin rash caused by direct contact with a substance or an allergic reaction to it, resulting in redness and itching.",
+        Folliculitis:
+          "Inflammation or infection of the hair follicles, appearing as small red bumps or white-headed pimples.",
+        "Head Lice":
+          "A parasitic insect infestation of the scalp causing intense itching and small red bumps.",
+        "Lichen Planus":
+          "A chronic inflammatory condition causing itchy, reddish-purple patches and potential scarring hair loss.",
+        "Male Pattern Baldness":
+          "The most common type of hair loss in men, caused by genetic and hormonal factors.",
+        Psoriasis:
+          "A chronic autoimmune disease causing thick, red, scaly patches on the scalp due to an accelerated life cycle of skin cells.",
+        "Seborrheic Dermatitis":
+          "A common condition causing stubborn dandruff, redness, and greasy or flaky patches, often due to an overgrowth of yeast.",
+        "Telogen Effluvium":
+          "A temporary form of hair loss where a large number of hairs fall out, often triggered by stress or illness.",
+        "Tinea Capitis":
+          "A contagious fungal infection of the scalp (scalp ringworm), most common in children, causing scaly, bald patches.",
+      };
+
+      // Mapping from ML model class names to disease page URLs
+      const diseasePageMapping = {
+        "Alopecia Areata": "/page3", // Alopecia page
+        "Contact Dermatitis": "/page2", // Dandruff/Contact Dermatitis page
+        "Folliculitis": "/page1", // Folliculitis page
+        "Head Lice": "/page6", // Using dandruff page as closest match
+        "Lichen Planus": "/page7", // Using alopecia page as closest match
+        "Male Pattern Baldness": "/page8", // Using alopecia page as closest match
+        "Psoriasis": "/page4", // Psoriasis page
+        "Seborrheic Dermatitis": "/page5", // Dandruff page (closest match)
+        "Telogen Effluvium": "/page9", // Using alopecia page as closest match
+        "Tinea Capitis": "/page10", // Using dandruff page as closest match
+      };
+
+      const clientName = localStorage.getItem("clientName") || "N/A";
+      const clientDOB = localStorage.getItem("clientDOB") || "N/A";
+      const clientContact = localStorage.getItem("clientContact") || "N/A";
+      const imageData = localStorage.getItem("uploadedImage");
+      const predictionData = JSON.parse(
+        localStorage.getItem("prediction") || "null"
+      );
+
+      const content = document.getElementById("content");
+      const noData = document.getElementById("noData");
+      const predImage = document.getElementById("predImage");
+      const predicted = document.getElementById("predicted");
+      const detailsText = document.getElementById("detailsText");
+      const detailsLink = document.getElementById("detailsLink");
+      const controls = document.getElementById("controls");
+
+      const backToUpload = () => {
+        window.location.href = "/predict";
+      };
+      document.getElementById("backBtn").onclick = backToUpload;
+      document.getElementById("backBtn2").onclick = backToUpload;
+
+      if (!imageData || !predictionData) {
+        noData.classList.add("visible");
+        content.classList.add("hidden");
+      } else {
+        predicted.textContent = predictionData.predicted_class;
+        detailsText.textContent =
+          diseaseInfo[predictionData.predicted_class] ||
+          "No extra details available.";
+
+        // Set the link to the appropriate disease page
+        const diseasePage =
+          diseasePageMapping[predictionData.predicted_class] || "/disease_info";
+        detailsLink.href = diseasePage;
+        detailsLink.textContent = `Learn more about ${predictionData.predicted_class} →`;
+
+        predImage.src = imageData;
+        predImage.classList.remove("hidden");
+        controls.classList.remove("hidden");
+      }
+
+      // Zoom & Pan Logic
+      let scale = 1,
+        tx = 0,
+        ty = 0;
+      let isDragging = false,
+        startX = 0,
+        startY = 0;
+      const applyTransform = () =>
+        (predImage.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`);
+      document.getElementById("zoomIn").onclick = () => {
+        scale = Math.min(4, scale + 0.2);
+        applyTransform();
+      };
+      document.getElementById("zoomOut").onclick = () => {
+        scale = Math.max(0.5, scale - 0.2);
+        applyTransform();
+      };
+      document.getElementById("reset").onclick = () => {
+        scale = 1;
+        tx = 0;
+        ty = 0;
+        applyTransform();
+      };
+      predImage.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        startX = e.clientX - tx;
+        startY = e.clientY - ty;
+        predImage.style.cursor = "grabbing";
+      });
+      window.addEventListener("mouseup", () => {
+        isDragging = false;
+        predImage.style.cursor = "grab";
+      });
+      window.addEventListener("mousemove", (e) => {
+        if (isDragging) {
+          e.preventDefault();
+          tx = e.clientX - startX;
+          ty = e.clientY - startY;
+          applyTransform();
+        }
+      });
+
+      // PDF Download Logic
+      document.getElementById("downloadBtn").onclick = () => {
+        if (!predictionData) return;
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.text("Scalp Condition Report", 105, 20, { align: "center" });
+
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.text("Client Details", 14, 35);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Name: ${clientName}`, 14, 45);
+        doc.text(`Date of Birth: ${clientDOB}`, 14, 52);
+        doc.text(`Contact: ${clientContact}`, 14, 59);
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Prediction Result", 14, 75);
+        doc.setFont("helvetica", "normal");
+        doc.text(
+          `Predicted Condition: ${predictionData.predicted_class}`,
+          14,
+          83
+        );
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Condition Details", 14, 100);
+        const detailText =
+          diseaseInfo[predictionData.predicted_class] ||
+          "No details available.";
+        const splitDetails = doc.splitTextToSize(detailText, 180);
+        doc.setFont("helvetica", "normal");
+        doc.text(splitDetails, 14, 108);
+
+        if (imageData) {
+          doc.setFont("helvetica", "bold");
+          doc.text("Uploaded Image", 14, 160);
+          doc.addImage(imageData, "JPEG", 14, 165, 60, 45);
+        }
+
+        doc.setFontSize(10);
+        doc.setTextColor(150);
+        doc.text(
+          "Disclaimer: This AI-generated report is for informational purposes only.",
+          105,
+          285,
+          { align: "center" }
+        );
+
+        doc.save(
+          `Scalp_Report_${predictionData.predicted_class.replace(
+            /\s+/g,
+            "_"
+          )}.pdf`
+        );
+      };
+
+      // Session timeout management
+      let sessionTimeout = null;
+      let warningShown = false;
+
+      function startSessionTimer() {
+        // Clear any existing timer
+        if (sessionTimeout) {
+          clearTimeout(sessionTimeout);
+        }
+
+        // Set timer for 25 minutes (5 minutes before 30-minute timeout)
+        sessionTimeout = setTimeout(() => {
+          showSessionWarning();
+        }, 25 * 60 * 1000); // 25 minutes in milliseconds
+      }
+
+      function showSessionWarning() {
+        if (warningShown) return;
+
+        warningShown = true;
+        const warning = document.getElementById("sessionWarning");
+        const timeLeft = document.getElementById("timeLeft");
+
+        warning.classList.add("show");
+
+        // Countdown from 5 minutes
+        let minutes = 5;
+        const countdown = setInterval(() => {
+          timeLeft.textContent = minutes;
+          minutes--;
+
+          if (minutes < 0) {
+            clearInterval(countdown);
+            // Redirect to login after 5 minutes warning
+            window.location.href = "/login";
+          }
+        }, 60000); // Update every minute
+      }
+
+      function resetSessionTimer() {
+        warningShown = false;
+        const warning = document.getElementById("sessionWarning");
+        warning.classList.remove("show");
+        startSessionTimer();
+      }
+
+      // Start timer when page loads
+      startSessionTimer();
+
+      // Reset timer on user activity
+      ["click", "keypress", "scroll", "mousemove"].forEach((event) => {
+        document.addEventListener(event, resetSessionTimer, true);
+      });
+    </script>
+    <script> window.chtlConfig = { chatbotId: "8383945963" } </script>
+<script async data-id="8383945963" id="chtl-script" type="text/javascript" src="https://chatling.ai/js/embed.js"></script>
+  </body>
+</html>

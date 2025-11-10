@@ -1,0 +1,22 @@
+# ML Model Dependencies (runtime-only)
+tensorflow==2.20.0
+keras-multi-head
+keras-self-attention
+Pillow==10.1.0
+numpy>=1.26.4,<2.0
+
+# Dev/analysis deps removed to avoid build tools on Windows
+# scikit-learn
+# matplotlib
+# seaborn
+# visualkeras
+
+# Django Dependencies
+Django==5.2.5
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+
+# FastAPI (optional - for standalone API)
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
