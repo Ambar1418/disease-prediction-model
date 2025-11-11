@@ -10,7 +10,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-q$p7bwhr1&oiimk3@r59_5-nwsyqhqr*$wf+7pq=ko4+q(71m0'
 DEBUG = False  # ❌ TURN OFF for production
 
-ALLOWED_HOSTS = ['minor.onrender.com', 'localhost', '127.0.0.1']
+# Allow all hosts for Render (Render will set the actual hostname)
+ALLOWED_HOSTS = ['*'] if os.environ.get('RENDER') else ['minor.onrender.com', 'localhost', '127.0.0.1']
 
 # Application definition
 INSTALLED_APPS = [
