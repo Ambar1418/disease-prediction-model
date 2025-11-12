@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "minor/core/wsgi.py",
+      "src": "**/*.py",
       "use": "@vercel/python",
       "config": { 
         "maxLambdaSize": "50mb",
@@ -14,8 +14,17 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "/minor/core/wsgi.py"
+      "src": "^/static/(.*)",
+      "dest": "/minor/staticfiles/$1"
+    },
+    {
+      "src": "^/(.*)",
+      "dest": "/minor/manage.py"
     }
-  ]
+  ],
+  "env": {
+    "PYTHONPATH": "/var/task/minor",
+    "DJANGO_SETTINGS_MODULE": "core.settings",
+    "PYTHONUNBUFFERED": "1"
+  }
 }

@@ -1,1 +1,1 @@
-web: gunicorn --chdir . core.wsgi --log-file -
+web: gunicorn --chdir minor core.wsgi --log-file - --workers 4 --timeout 120
