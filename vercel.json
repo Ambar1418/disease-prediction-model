@@ -15,15 +15,15 @@
   "routes": [
     {
       "src": "^/static/(.*)",
-      "dest": "/minor/staticfiles/$1"
+      "dest": "/core/staticfiles/$1"
     },
     {
       "src": "^/(.*)",
-      "dest": "/minor/manage.py"
+      "dest": "/core/manage.py"
     }
   ],
   "env": {
-    "PYTHONPATH": "/var/task/minor",
+    "PYTHONPATH": "/var/task/core",
     "DJANGO_SETTINGS_MODULE": "core.settings",
     "PYTHONUNBUFFERED": "1"
   }
