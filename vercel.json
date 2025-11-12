@@ -7,7 +7,7 @@
       "config": { 
         "maxLambdaSize": "50mb",
         "python": {
-          "runtime": "python3.9"
+          "runtime": "python3.11"
         }
       }
     }
