@@ -2,22 +2,15 @@
   "version": 2,
   "builds": [
     {
-      "src": "minor/api/index.py",
+      "src": "minor/wsgi.py",
       "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "250mb"
-      }
+      "config": { "maxLambdaSize": "15mb" }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "minor/api/index.py"
+      "dest": "minor/wsgi.py"
     }
-  ],
-  "functions": {
-    "minor/api/index.py": {
-      "runtime": "python3.12"
-    }
-  }
+  ]
 }
