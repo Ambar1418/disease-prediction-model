@@ -84,5 +84,20 @@ class MLModelService:
             print(f"❌ Error during prediction: {str(e)}")
             return {"error": f"Prediction failed: {str(e)}"}
 
-# Global instance
-ml_service = MLModelService()
+# Global instance - lazy loading to avoid startup crashes
+_ml_service_instance = None
+
+def get_ml_service():
+    """Get or create ML service instance (lazy loading)"""
+    global _ml_service_instance
+    if _ml_service_instance is None:
+        try:
+            _ml_service_instance = MLModelService()
+        except Exception as e:
+            print(f"❌ Failed to initialize ML service: {str(e)}")
+            # Return a dummy service that will fail gracefully
+            class DummyMLService:
+                def predict(self, image_input):
+                    return {"error": "Model not available", "success": False}
+            _ml_service_instance = DummyMLService()
+    return _ml_service_instance

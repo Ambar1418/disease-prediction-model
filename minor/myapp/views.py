@@ -11,7 +11,7 @@ from django.core.files.base import ContentFile
 import json
 import os
 import time
-from .ml_service import ml_service
+from .ml_service import get_ml_service
 
 # Create your views here.
 def home(request):
@@ -120,6 +120,7 @@ def predict_api(request):
                 return JsonResponse({'error': 'File must be an image'}, status=400)
             
             # Make prediction
+            ml_service = get_ml_service()
             result = ml_service.predict(file)
             
             if 'error' in result:

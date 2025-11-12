@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "250mb"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/index.py"
+    }
+  ],
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.11"
+    }
+  },
+  "env": {
+    "PYTHON_VERSION": "3.11"
+  },
+  "build": {
+    "env": {
+      "PIP_NO_CACHE_DIR": "1",
+      "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+      "VERCEL": "1"
+    }
+  }
+}
