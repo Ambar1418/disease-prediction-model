@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE_DIR))
 
 # Set Django settings module
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'minor.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 os.environ.setdefault('VERCEL', '1')
 
 # Import Django WSGI application
