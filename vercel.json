@@ -1,12 +1,8 @@
 {
-  "version": 2,
   "builds": [
     {
       "src": "minor/api/index.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "250mb"
-      }
+      "use": "@vercel/python"
     }
   ],
   "routes": [
@@ -14,10 +10,5 @@
       "src": "/(.*)",
       "dest": "minor/api/index.py"
     }
-  ],
-  "env": {
-    "PIP_NO_CACHE_DIR": "1",
-    "PIP_DISABLE_PIP_VERSION_CHECK": "1",
-    "VERCEL": "1"
-  }
+  ]
 }
