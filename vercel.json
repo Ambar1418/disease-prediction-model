@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "**/*.py",
+      "src": "minor/manage.py",
       "use": "@vercel/python",
       "config": { 
         "maxLambdaSize": "50mb",
@@ -10,21 +10,31 @@
           "runtime": "python3.11"
         }
       }
+    },
+    {
+      "src": "minor/static/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "^/static/(.*)",
-      "dest": "/core/staticfiles/$1"
+      "src": "/static/(.*)",
+      "dest": "/minor/static/$1"
     },
     {
-      "src": "^/(.*)",
-      "dest": "/core/manage.py"
+      "src": "/(.*)",
+      "dest": "/minor/manage.py"
     }
   ],
   "env": {
-    "PYTHONPATH": "/var/task/core",
+    "PYTHONPATH": "/var/task/minor",
     "DJANGO_SETTINGS_MODULE": "core.settings",
-    "PYTHONUNBUFFERED": "1"
+    "PYTHONUNBUFFERED": "1",
+    "VERCEL": "1"
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
   }
 }
