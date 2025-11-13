@@ -2,39 +2,26 @@
   "version": 2,
   "builds": [
     {
-      "src": "minor/manage.py",
+      "src": "minor/wsgi.py",
       "use": "@vercel/python",
-      "config": { 
+      "config": {
         "maxLambdaSize": "50mb",
-        "python": {
-          "runtime": "python3.11"
-        }
+        "runtime": "python3.11"
       }
-    },
-    {
-      "src": "minor/static/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/static/(.*)",
-      "dest": "/minor/static/$1"
+      "dest": "/static/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/minor/manage.py"
+      "dest": "minor/wsgi.py"
     }
   ],
   "env": {
-    "PYTHONPATH": "/var/task/minor",
-    "DJANGO_SETTINGS_MODULE": "core.settings",
-    "PYTHONUNBUFFERED": "1",
-    "VERCEL": "1"
-  },
-  "build": {
-    "env": {
-      "NODE_ENV": "production"
-    }
+    "DJANGO_SETTINGS_MODULE": "minor.settings",
+    "PYTHONUNBUFFERED": "1"
   }
 }
