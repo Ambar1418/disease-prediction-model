@@ -53,7 +53,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'core.wsgi.application'
+WSGI_APPLICATION = 'minor.wsgi.application'
+
 
 # Database
 import os
