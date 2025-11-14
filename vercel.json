@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "required_files/frontend/index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://hair-scalp-detector.onrender.com/:splat"
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "/required_files/minor/myapp/static/$1"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/required_files/minor/myapp/static/icons/icon-96x96.png"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/required_files/frontend/index.html"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║     HAIR & SCALP DISEASE PREDICTION SYSTEM                   ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+
+📍 TO RUN THE APPLICATION:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   1. Go to folder: required_files
+   
+   2. Double-click: START_APPLICATION.bat
+   
+   3. Wait for browser to open (3 seconds)
+   
+   4. Start using the app! 🎉
+
+
+⚙️ SYSTEM REQUIREMENTS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   • Windows 7/8/10/11
+   • Python 3.8+ (Download: https://www.python.org/downloads/)
+   • 4GB RAM minimum
+   • 2GB free disk space
+
+
+⏱️ FIRST RUN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   First time: 2-3 minutes (installing dependencies)
+   Next times: 10 seconds ⚡
+
+
+📚 NEED HELP?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   Read: required_files/README.md
+
+
+⚠️ IMPORTANT:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   • Keep console window OPEN while using the app
+   • Press Ctrl+C to stop the server
+   • All data stays on your computer (private & secure)
+
+
+🎉 ENJOY YOUR AI-POWERED MEDICAL DIAGNOSIS SYSTEM!
+
