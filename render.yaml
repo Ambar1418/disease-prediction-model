@@ -2,7 +2,7 @@ services:
   - type: web
     name: disease-prediction-app
     env: python
-    buildCommand: "pip install -r required_files/requirements.txt && python required_files/manage.py collectstatic --noinput"
+    buildCommand: "chmod +x build_render.sh && ./build_render.sh"
     startCommand: "gunicorn minor.wsgi:application --log-file -"
     envVars:
       - key: PYTHON_VERSION
@@ -12,9 +12,11 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: WEB_CONCURRENCY
-        value: 4
+        value: 2
       - key: DISABLE_COLLECTSTATIC
-        value: 0
+        value: 1
+      - key: PYTHONPATH
+        value: /opt/render/project/src/required_files
     autoDeploy: true
     plan: free
     numInstances: 1
