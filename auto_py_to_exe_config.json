@@ -1,0 +1,11 @@
+{
+  "version": "auto-py-to-exe-configuration_v1",
+  "pyinstallerOptions": {
+    "filenames": [
+      "main_exe.py"
+    ],
+    "onefile": true,
+    "console": true,
+    "name": "HairDiseasePrediction"
+  }
+}

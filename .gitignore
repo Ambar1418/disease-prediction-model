@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*** End Patch***>>();
+
+build/
+dist/
+HairDiseasePrediction_Portable/
+__pycache__/
+*.spec
+*.exe
+*.bat
+*.sh
+*.zip
+.DS_Store
+
+
+Hair Diseases - Final/

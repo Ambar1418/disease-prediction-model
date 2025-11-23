@@ -1,0 +1,19 @@
+# macOS legacy stack for Python 3.10 with TF/Keras 2.x (for custom layers)
+
+# Django
+Django==5.2.5
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+
+# Core scientific/imagery
+Pillow==10.1.0
+numpy==1.24.3
+
+# Keras 2.x compatible
+keras==2.13.1
+keras-multi-head==0.27.0
+keras-self-attention==0.46.0
+
+# Apple Silicon TensorFlow for Python 3.10
+tensorflow-macos==2.13.0
+tensorflow-metal==1.1.0

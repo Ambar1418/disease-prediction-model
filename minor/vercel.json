@@ -2,22 +2,20 @@
   "version": 2,
   "builds": [
     {
-      "src": "minor/wsgi.py",
+      "src": "core/wsgi.py",
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "50mb",
-        "runtime": "python3.11"
+        "python": {
+          "runtime": "python3.11"
+        }
       }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "minor/wsgi.py"
+      "dest": "/core/wsgi.py"
     }
-  ],
-  "env": {
-    "DJANGO_SETTINGS_MODULE": "minor.settings",
-    "PYTHONUNBUFFERED": "1"
-  }
+  ]
 }
